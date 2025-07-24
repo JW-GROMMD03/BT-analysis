@@ -1,0 +1,2132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bamburi Tilapia Hotel - Management System</title>
+    <meta name="description" content="Management system for Bamburi Tilapia Hotel - track sales, inventory, staff attendance and salaries">
+    <meta name="theme-color" content="#2c3e50">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icons/fish-icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/icons/fish-icon-192.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1a5276;
+            --secondary-color: #2980b9;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --sidebar-width: 250px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 100;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header i {
+            font-size: 2rem;
+            color: #f1c40f;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1rem;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .nav-link.active {
+            background-color: var(--secondary-color);
+            font-weight: 600;
+        }
+
+        .nav-link i {
+            width: 24px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.7);
+            text-align: center;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: margin-left 0.3s ease;
+        }
+
+        .top-bar {
+            background-color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 90;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .date-display {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            font-size: 0.9rem;
+        }
+
+        .content-area {
+            padding: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Common Card Styles */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header h2 {
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header h2 i {
+            color: var(--secondary-color);
+        }
+
+        /* Form Styles */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        /* Button Styles */
+        .btn {
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2475b0;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #219955;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background-color: #e67e22;
+            transform: translateY(-2px);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Table Styles */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+
+        .table th, .table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .table th {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            font-weight: 600;
+        }
+
+        .table tr:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+
+        /* Status Styles */
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background-color: #fef9e7;
+            color: #f39c12;
+        }
+
+        .status-paid {
+            background-color: #e8f8f5;
+            color: #27ae60;
+        }
+
+        .status-late {
+            background-color: #fdedec;
+            color: #e74c3c;
+        }
+
+        .status-early {
+            background-color: #e8f8f5;
+            color: #27ae60;
+        }
+
+        .status-punctual {
+            background-color: #eaf2f8;
+            color: #2980b9;
+        }
+
+        /* Analytics Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .summary-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .summary-card h4 {
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .summary-card p {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-card small {
+            color: #7f8c8d;
+            font-size: 0.8rem;
+        }
+
+        /* Salary Calculation Styles */
+        .salary-result {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .deduction-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .deduction-item input {
+            flex: 1;
+        }
+
+        /* Search Suggestions */
+        .search-suggestions {
+            position: absolute;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            width: calc(100% - 2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .search-suggestion {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        .search-suggestion:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Error Messages */
+        .error-message {
+            color: var(--danger-color);
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        /* Install Button */
+        .install-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+        }
+
+        .install-btn:hover {
+            background-color: #2475b0;
+            transform: translateY(-2px);
+        }
+
+        /* Offline Notification */
+        .offline-notification {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--danger-color);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            z-index: 1000;
+            display: none;
+        }
+
+        /* Fish Size Table */
+        .fish-size-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .fish-size-table th, .fish-size-table td {
+            padding: 0.5rem;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .fish-size-table th {
+            background-color: #f5f5f5;
+        }
+
+        .fish-size-table input {
+            width: 60px;
+            text-align: center;
+            padding: 0.3rem;
+        }
+
+        /* Settings Panel */
+        .settings-panel {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-cards {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .date-display {
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-notification" id="offline-notification">
+        <i class="fas fa-wifi"></i> You are currently offline. Some features may be limited.
+    </div>
+
+    <button class="install-btn" id="installBtn">
+        <i class="fas fa-download"></i> Install App
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-fish"></i>
+            <h1>Bamburi Tilapia Hotel</h1>
+        </div>
+        
+        <nav class="nav-menu">
+            <a href="#" class="nav-link active" data-page="dashboard-page">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="#" class="nav-link" data-page="sales-page">
+                <i class="fas fa-cash-register"></i> Sales
+            </a>
+            <a href="#" class="nav-link" data-page="inventory-page">
+                <i class="fas fa-boxes"></i> Inventory
+            </a>
+            <a href="#" class="nav-link" data-page="staff-page">
+                <i class="fas fa-users"></i> Staff
+            </a>
+            <a href="#" class="nav-link" data-page="reports-page">
+                <i class="fas fa-chart-bar"></i> Reports
+            </a>
+            <a href="#" class="nav-link" data-page="settings-page">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <p>Management System v1.0</p>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="date-display">
+                <span id="current-date"></span>
+                <span id="current-time"></span>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Dashboard Page -->
+            <div id="dashboard-page" class="page active">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-tachometer-alt"></i> Hotel Overview</h2>
+                    </div>
+                    
+                    <div class="summary-cards">
+                        <div class="summary-card">
+                            <h4>Today's Sales</h4>
+                            <p id="today-sales">Ksh 0</p>
+                            <small>Total Revenue</small>
+                        </div>
+                        <div class="summary-card">
+                            <h4>Today's Profit</h4>
+                            <p id="today-profit">Ksh 0</p>
+                            <small>After Expenses</small>
+                        </div>
+                        <div class="summary-card">
+                            <h4>Fish Remaining</h4>
+                            <p id="fish-remaining">0</p>
+                            <small>In Stock</small>
+                        </div>
+                        <div class="summary-card">
+                            <h4>Staff Present</h4>
+                            <p id="staff-present">0</p>
+                            <small>Today</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-chart-line"></i> Quick Sales</h2>
+                        <button class="btn btn-primary" id="quick-sale-btn">
+                            <i class="fas fa-plus"></i> New Sale
+                        </button>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="quick-item">Item</label>
+                            <select id="quick-item" class="form-control">
+                                <option value="">Select Item</option>
+                                <!-- Items will be populated from settings -->
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="quick-qty">Quantity</label>
+                            <input type="number" id="quick-qty" class="form-control" min="1" value="1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="quick-price">Price (Ksh)</label>
+                            <input type="number" id="quick-price" class="form-control" min="0" step="50">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="quick-payment">Payment Method</label>
+                            <select id="quick-payment" class="form-control">
+                                <option value="cash">Cash</option>
+                                <option value="mpesa">M-Pesa</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-success" id="save-quick-sale">
+                        <i class="fas fa-save"></i> Record Sale
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-clock"></i> Recent Activity</h2>
+                    </div>
+                    
+                    <table class="table" id="recent-activity-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Activity</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Recent activity will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sales Page -->
+            <div id="sales-page" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-cash-register"></i> Record Sales</h2>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <!-- Fish Sales -->
+                        <div class="form-group">
+                            <label for="fish-type">Fish Type</label>
+                            <select id="fish-type" class="form-control">
+                                <option value="tilapia">Tilapia</option>
+                                <option value="catfish">Catfish</option>
+                                <!-- Additional types can be added in settings -->
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Fish Size and Quantity</label>
+                            <table class="fish-size-table">
+                                <thead>
+                                    <tr>
+                                        <th>Size (Ksh)</th>
+                                        <th>Quantity</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>200</td>
+                                        <td><input type="number" id="size-200" min="0" class="fish-qty-input"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>250</td>
+                                        <td><input type="number" id="size-250" min="0" class="fish-qty-input"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>300</td>
+                                        <td><input type="number" id="size-300" min="0" class="fish-qty-input"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>350</td>
+                                        <td><input type="number" id="size-350" min="0" class="fish-qty-input"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>400</td>
+                                        <td><input type="number" id="size-400" min="0" class="fish-qty-input"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Other Items -->
+                        <div class="form-group">
+                            <label for="other-items">Other Items</label>
+                            <select id="other-items" class="form-control" multiple>
+                                <!-- Items will be populated from settings -->
+                            </select>
+                        </div>
+                        
+                        <!-- Payment Section -->
+                        <div class="form-group">
+                            <label>Payment Method</label>
+                            <div class="radio-group">
+                                <label>
+                                    <input type="radio" name="payment" value="cash" checked>
+                                    <i class="fas fa-money-bill-wave"></i> Cash
+                                </label>
+                                <label>
+                                    <input type="radio" name="payment" value="mpesa">
+                                    <i class="fas fa-mobile-alt"></i> M-Pesa
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Amount Section -->
+                        <div class="form-group">
+                            <label for="mpesa-sales">M-Pesa Amount</label>
+                            <input type="number" id="mpesa-sales" class="form-control" min="0" step="50">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cash-sales">Cash Amount</label>
+                            <input type="number" id="cash-sales" class="form-control" min="0" step="50">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Total Sales</label>
+                            <input type="text" id="total-sales" class="form-control" readonly>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" id="save-sale">
+                        <i class="fas fa-save"></i> Save Sale
+                    </button>
+                </div>
+            </div>
+
+            <!-- Inventory Page -->
+            <div id="inventory-page" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-boxes"></i> Inventory Management</h2>
+                        <button class="btn btn-primary" id="add-inventory-btn">
+                            <i class="fas fa-plus"></i> Add Item
+                        </button>
+                    </div>
+                    
+                    <table class="table" id="inventory-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Category</th>
+                                <th>Current Stock</th>
+                                <th>Price</th>
+                                <th>Last Updated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Inventory items will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Staff Page -->
+            <div id="staff-page" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-users"></i> Staff Management</h2>
+                        <div class="search-filter">
+                            <input type="text" id="staff-search" placeholder="Search staff..." class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <!-- Employee Registration -->
+                        <div class="form-group">
+                            <label for="employee-name">Full Name</label>
+                            <input type="text" id="employee-name" class="form-control" placeholder="Enter full name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="employee-id">Employee ID</label>
+                            <input type="text" id="employee-id" class="form-control" placeholder="Enter ID">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="employee-position">Position</label>
+                            <input type="text" id="employee-position" class="form-control" placeholder="Enter position">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="employee-gender">Gender</label>
+                            <select id="employee-gender" class="form-control">
+                                <option value="">Select Gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="working-hours">Daily Hours</label>
+                            <input type="number" id="working-hours" class="form-control" min="1" max="24" value="8">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="daily-rate">Daily Rate (Ksh)</label>
+                            <input type="number" id="daily-rate" class="form-control" min="0" step="100">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="payment-day">Payment Day</label>
+                            <select id="payment-day" class="form-control">
+                                <option value="1">1st of month</option>
+                                <option value="15">15th of month</option>
+                                <option value="28">28th of month</option>
+                                <option value="last">Last day of month</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button class="btn btn-primary" id="register-employee">
+                            <i class="fas fa-user-plus"></i> Register Employee
+                        </button>
+                        <button class="btn btn-danger" id="deregister-employee" disabled>
+                            <i class="fas fa-user-minus"></i> Deregister Employee
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-user-clock"></i> Attendance</h2>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="attendance-date">Date</label>
+                            <input type="date" id="attendance-date" class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="staff-name">Staff Name</label>
+                            <select id="staff-name" class="form-control">
+                                <!-- Staff names will be populated here -->
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="arrival-time">Arrival Time</label>
+                            <input type="time" id="arrival-time" class="form-control">
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" id="save-attendance">
+                        <i class="fas fa-user-check"></i> Record Attendance
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-money-bill-wave"></i> Salary Calculation</h2>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="salary-staff-name">Staff Name</label>
+                            <select id="salary-staff-name" class="form-control">
+                                <!-- Staff names will be populated here -->
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="working-days">Working Days</label>
+                            <input type="number" id="working-days" class="form-control" min="1" max="31" value="26">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="salary-month">Month</label>
+                            <select id="salary-month" class="form-control">
+                                <option value="0">January</option>
+                                <option value="1">February</option>
+                                <option value="2">March</option>
+                                <option value="3">April</option>
+                                <option value="4">May</option>
+                                <option value="5">June</option>
+                                <option value="6">July</option>
+                                <option value="7">August</option>
+                                <option value="8">September</option>
+                                <option value="9">October</option>
+                                <option value="10">November</option>
+                                <option value="11">December</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="salary-date">Payment Date</label>
+                            <input type="date" id="salary-date" class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Deductions</label>
+                        <div id="deductions-container">
+                            <!-- Deduction items will be added here -->
+                        </div>
+                        <button type="button" id="add-deduction" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Add Deduction
+                        </button>
+                    </div>
+                    
+                    <button class="btn btn-primary" id="calculate-salary">
+                        <i class="fas fa-calculator"></i> Calculate Salary
+                    </button>
+                    
+                    <div id="salary-result" class="salary-result" style="display: none;">
+                        <!-- Salary calculation results will be shown here -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-clipboard-list"></i> Attendance Records</h2>
+                    </div>
+                    
+                    <table class="table" id="attendance-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Staff Name</th>
+                                <th>Arrival Time</th>
+                                <th>Status</th>
+                                <th>Minutes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Attendance records will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Reports Page -->
+            <div id="reports-page" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-chart-bar"></i> Sales Reports</h2>
+                        <div class="search-filter">
+                            <input type="date" id="report-start-date" class="form-control">
+                            <input type="date" id="report-end-date" class="form-control">
+                            <button class="btn btn-secondary" id="generate-report">
+                                <i class="fas fa-filter"></i> Filter
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <canvas id="salesChart"></canvas>
+                        </div>
+                        
+                        <div class="form-group">
+                            <canvas id="paymentChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <table class="table" id="sales-report-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Fish Sales</th>
+                                <th>Other Sales</th>
+                                <th>Total Sales</th>
+                                <th>Expenses</th>
+                                <th>Profit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Sales report data will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-file-export"></i> Export Data</h2>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Export Type</label>
+                            <select id="export-type" class="form-control">
+                                <option value="sales">Sales Data</option>
+                                <option value="inventory">Inventory Data</option>
+                                <option value="attendance">Attendance Data</option>
+                                <option value="salaries">Salary Data</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Date Range</label>
+                            <input type="date" id="export-start-date" class="form-control">
+                            <input type="date" id="export-end-date" class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Format</label>
+                            <div class="radio-group">
+                                <label>
+                                    <input type="radio" name="export-format" value="csv" checked>
+                                    CSV
+                                </label>
+                                <label>
+                                    <input type="radio" name="export-format" value="pdf">
+                                    PDF
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" id="export-data">
+                        <i class="fas fa-download"></i> Export Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="settings-page" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-cog"></i> Hotel Settings</h2>
+                    </div>
+                    
+                    <div class="settings-panel">
+                        <div class="settings-item">
+                            <div>
+                                <h4>Hotel Name</h4>
+                                <p>Bamburi Tilapia Hotel</p>
+                            </div>
+                            <button class="btn btn-secondary btn-sm">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                        </div>
+                        
+                        <div class="settings-item">
+                            <div>
+                                <h4>Currency</h4>
+                                <p>Kenyan Shilling (Ksh)</p>
+                            </div>
+                            <button class="btn btn-secondary btn-sm">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                        </div>
+                        
+                        <div class="settings-item">
+                            <div>
+                                <h4>Opening Hours</h4>
+                                <p>8:00 AM - 10:00 PM</p>
+                            </div>
+                            <button class="btn btn-secondary btn-sm">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-utensils"></i> Menu Items</h2>
+                        <button class="btn btn-primary" id="add-menu-item">
+                            <i class="fas fa-plus"></i> Add Item
+                        </button>
+                    </div>
+                    
+                    <div class="form-grid" id="menu-items-container">
+                        <!-- Menu items will be populated here -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-bell"></i> Notifications</h2>
+                    </div>
+                    
+                    <div class="settings-panel">
+                        <div class="settings-item">
+                            <div>
+                                <h4>Low Stock Alerts</h4>
+                                <p>Receive notifications when inventory is low</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="settings-item">
+                            <div>
+                                <h4>Daily Sales Summary</h4>
+                                <p>Receive end-of-day sales reports</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="settings-item">
+                            <div>
+                                <h4>Staff Attendance Alerts</h4>
+                                <p>Receive notifications when staff are late</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-database"></i> Data Management</h2>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <button class="btn btn-warning" id="backup-data">
+                                <i class="fas fa-save"></i> Backup Data
+                            </button>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button class="btn btn-secondary" id="restore-data">
+                                <i class="fas fa-undo"></i> Restore Data
+                            </button>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button class="btn btn-danger" id="reset-data">
+                                <i class="fas fa-trash"></i> Reset All Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Data Storage
+        let businessRecords = JSON.parse(localStorage.getItem('bamburiRecords')) || [];
+        let inventoryItems = JSON.parse(localStorage.getItem('inventoryItems')) || [];
+        let staffMembers = JSON.parse(localStorage.getItem('staffMembers')) || [];
+        let attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords')) || [];
+        let salaryRecords = JSON.parse(localStorage.getItem('salaryRecords')) || [];
+        let menuItems = JSON.parse(localStorage.getItem('menuItems')) || [
+            { id: 1, name: "Tilapia Wet Fry", category: "Main", price: 450 },
+            { id: 2, name: "Tilapia Grilled", category: "Main", price: 400 },
+            { id: 3, name: "Ugali", category: "Side", price: 50 },
+            { id: 4, name: "Rice", category: "Side", price: 80 },
+            { id: 5, name: "Soda", category: "Drink", price: 100 }
+        ];
+        let currentStock = JSON.parse(localStorage.getItem('currentStock')) || {
+            tilapia: 0,
+            catfish: 0
+        };
+        let settings = JSON.parse(localStorage.getItem('hotelSettings')) || {
+            hotelName: "Bamburi Tilapia Hotel",
+            currency: "Ksh",
+            openingTime: "08:00",
+            closingTime: "22:00",
+            lateThreshold: "09:30",
+            deductionPerMinute: 5 // Ksh per minute late
+        };
+
+        // DOM Elements
+        const sidebar = document.getElementById('sidebar');
+        const menuToggle = document.getElementById('menuToggle');
+        const currentDateEl = document.getElementById('current-date');
+        const currentTimeEl = document.getElementById('current-time');
+        const pages = document.querySelectorAll('.page');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const installBtn = document.getElementById('installBtn');
+        const offlineNotification = document.getElementById('offline-notification');
+
+        // Initialize the application
+        function init() {
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            
+            loadDashboard();
+            loadMenuItems();
+            loadInventory();
+            loadStaffMembers();
+            loadAttendanceRecords();
+            
+            setupEventListeners();
+            
+            // Set default dates
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('attendance-date').value = today;
+            document.getElementById('salary-date').value = today;
+            
+            // Add one empty deduction field by default
+            addDeductionField();
+            
+            // Check if app is running as PWA
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                console.log('Running as PWA');
+            }
+            
+            // Check network status
+            updateOnlineStatus();
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+            
+            // Initialize PWA installation prompt
+            setupInstallPrompt();
+        }
+
+        // Update online status
+        function updateOnlineStatus() {
+            if (navigator.onLine) {
+                offlineNotification.style.display = 'none';
+            } else {
+                offlineNotification.style.display = 'block';
+            }
+        }
+
+        // Setup PWA installation prompt
+        function setupInstallPrompt() {
+            let deferredPrompt;
+            
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                installBtn.style.display = 'flex';
+                console.log('beforeinstallprompt fired');
+            });
+            
+            installBtn.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
+                
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response to the install prompt: ${outcome}`);
+                installBtn.style.display = 'none';
+                deferredPrompt = null;
+            });
+            
+            window.addEventListener('appinstalled', () => {
+                installBtn.style.display = 'none';
+                deferredPrompt = null;
+                console.log('PWA was installed');
+            });
+        }
+
+        // Update current date and time
+        function updateDateTime() {
+            const now = new Date();
+            currentDateEl.textContent = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            currentTimeEl.textContent = now.toLocaleTimeString();
+        }
+
+        // Load dashboard data
+        function loadDashboard() {
+            // Calculate today's date
+            const today = new Date().toLocaleDateString();
+            
+            // Calculate today's sales
+            const todaySales = businessRecords
+                .filter(record => record.date === today)
+                .reduce((sum, record) => sum + record.totalSales, 0);
+            
+            // Calculate today's profit
+            const todayProfit = businessRecords
+                .filter(record => record.date === today)
+                .reduce((sum, record) => sum + (record.totalSales - record.expenses), 0);
+            
+            // Calculate remaining fish
+            const remainingFish = currentStock.tilapia + currentStock.catfish;
+            
+            // Calculate staff present today
+            const staffPresent = attendanceRecords
+                .filter(record => record.date === today)
+                .length;
+            
+            // Update dashboard
+            document.getElementById('today-sales').textContent = `Ksh ${todaySales.toLocaleString()}`;
+            document.getElementById('today-profit').textContent = `Ksh ${todayProfit.toLocaleString()}`;
+            document.getElementById('fish-remaining').textContent = remainingFish;
+            document.getElementById('staff-present').textContent = staffPresent;
+            
+            // Load recent activity
+            loadRecentActivity();
+        }
+
+        // Load recent activity
+        function loadRecentActivity() {
+            const activityTable = document.getElementById('recent-activity-table').querySelector('tbody');
+            activityTable.innerHTML = '';
+            
+            // Get last 5 sales
+            const recentSales = businessRecords.slice(-5).reverse();
+            
+            recentSales.forEach(record => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${record.time || ''}</td>
+                    <td>Sale Recorded</td>
+                    <td>${record.fishType ? `${record.piecesSold} ${record.fishType}` : 'Other items'} - Ksh ${record.totalSales.toLocaleString()}</td>
+                `;
+                activityTable.appendChild(row);
+            });
+        }
+
+        // Load menu items
+        function loadMenuItems() {
+            const quickItemSelect = document.getElementById('quick-item');
+            const otherItemsSelect = document.getElementById('other-items');
+            
+            // Clear existing options
+            quickItemSelect.innerHTML = '<option value="">Select Item</option>';
+            otherItemsSelect.innerHTML = '';
+            
+            // Add menu items to selects
+            menuItems.forEach(item => {
+                const option1 = document.createElement('option');
+                option1.value = item.id;
+                option1.textContent = `${item.name} (Ksh ${item.price})`;
+                quickItemSelect.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = item.id;
+                option2.textContent = `${item.name} (Ksh ${item.price})`;
+                otherItemsSelect.appendChild(option2);
+            });
+        }
+
+        // Load inventory items
+        function loadInventory() {
+            const inventoryTable = document.getElementById('inventory-table').querySelector('tbody');
+            inventoryTable.innerHTML = '';
+            
+            inventoryItems.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.category}</td>
+                    <td>${item.quantity}</td>
+                    <td>Ksh ${item.price}</td>
+                    <td>${item.lastUpdated || 'N/A'}</td>
+                    <td>
+                        <button class="btn btn-secondary btn-sm edit-inventory" data-id="${item.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm delete-inventory" data-id="${item.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                inventoryTable.appendChild(row);
+            });
+            
+            // Add event listeners to buttons
+            document.querySelectorAll('.edit-inventory').forEach(btn => {
+                btn.addEventListener('click', () => editInventoryItem(btn.dataset.id));
+            });
+            
+            document.querySelectorAll('.delete-inventory').forEach(btn => {
+                btn.addEventListener('click', () => deleteInventoryItem(btn.dataset.id));
+            });
+        }
+
+        // Load staff members
+        function loadStaffMembers() {
+            const staffNameSelect = document.getElementById('staff-name');
+            const salaryStaffSelect = document.getElementById('salary-staff-name');
+            
+            // Clear existing options
+            staffNameSelect.innerHTML = '';
+            salaryStaffSelect.innerHTML = '';
+            
+            if (staffMembers.length === 0) {
+                staffNameSelect.innerHTML = '<option value="">No staff registered</option>';
+                salaryStaffSelect.innerHTML = '<option value="">No staff registered</option>';
+                return;
+            }
+            
+            staffMembers.forEach(staff => {
+                const option1 = document.createElement('option');
+                option1.value = staff.id;
+                option1.textContent = staff.name;
+                staffNameSelect.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = staff.id;
+                option2.textContent = staff.name;
+                salaryStaffSelect.appendChild(option2);
+            });
+        }
+
+        // Load attendance records
+        function loadAttendanceRecords() {
+            const attendanceTable = document.getElementById('attendance-table').querySelector('tbody');
+            attendanceTable.innerHTML = '';
+            
+            attendanceRecords.forEach((record, index) => {
+                const staff = staffMembers.find(s => s.id === record.staffId);
+                const staffName = staff ? staff.name : 'Unknown';
+                
+                let statusClass, statusText;
+                if (record.status === 'late') {
+                    statusClass = 'status-late';
+                    statusText = `Late (${record.duration} mins)`;
+                } else if (record.status === 'early') {
+                    statusClass = 'status-early';
+                    statusText = `Early (${record.duration} mins)`;
+                } else {
+                    statusClass = 'status-punctual';
+                    statusText = 'Punctual';
+                }
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${record.date}</td>
+                    <td>${staffName}</td>
+                    <td>${record.arrivalTime}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>${record.duration}</td>
+                    <td>
+                        <button class="btn btn-secondary btn-sm edit-attendance" data-index="${index}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm delete-attendance" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                attendanceTable.appendChild(row);
+            });
+            
+            // Add event listeners to buttons
+            document.querySelectorAll('.edit-attendance').forEach(btn => {
+                btn.addEventListener('click', () => editAttendanceRecord(btn.dataset.index));
+            });
+            
+            document.querySelectorAll('.delete-attendance').forEach(btn => {
+                btn.addEventListener('click', () => deleteAttendanceRecord(btn.dataset.index));
+            });
+        }
+
+        // Register a new staff member
+        function registerStaffMember() {
+            const name = document.getElementById('employee-name').value.trim();
+            const id = document.getElementById('employee-id').value.trim();
+            const position = document.getElementById('employee-position').value.trim();
+            const gender = document.getElementById('employee-gender').value;
+            const workingHours = parseFloat(document.getElementById('working-hours').value) || 8;
+            const dailyRate = parseFloat(document.getElementById('daily-rate').value) || 0;
+            const paymentDay = document.getElementById('payment-day').value;
+            
+            if (!name || !id || !position || !gender || dailyRate <= 0) {
+                alert('Please fill all required fields with valid values');
+                return;
+            }
+            
+            // Check if staff ID already exists
+            if (staffMembers.some(staff => staff.id === id)) {
+                alert('Staff member with this ID already exists');
+                return;
+            }
+            
+            // Create staff record
+            const staff = {
+                id,
+                name,
+                position,
+                gender,
+                workingHours,
+                dailyRate,
+                paymentDay,
+                registrationDate: new Date().toLocaleDateString(),
+                active: true
+            };
+            
+            staffMembers.push(staff);
+            localStorage.setItem('staffMembers', JSON.stringify(staffMembers));
+            
+            // Update dropdowns
+            loadStaffMembers();
+            
+            // Clear form
+            document.getElementById('employee-name').value = '';
+            document.getElementById('employee-id').value = '';
+            document.getElementById('employee-position').value = '';
+            document.getElementById('employee-gender').value = '';
+            document.getElementById('working-hours').value = '8';
+            document.getElementById('daily-rate').value = '';
+            document.getElementById('payment-day').value = '1';
+            
+            alert(`Staff member ${name} registered successfully!`);
+        }
+
+        // Deregister a staff member
+        function deregisterStaffMember() {
+            const staffSelect = document.getElementById('staff-name');
+            const staffId = staffSelect.value;
+            
+            if (!staffId) {
+                alert('Please select a staff member to deregister');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to deregister this staff member? This action cannot be undone.')) {
+                const staffIndex = staffMembers.findIndex(staff => staff.id === staffId);
+                
+                if (staffIndex !== -1) {
+                    // Mark as inactive instead of deleting to preserve records
+                    staffMembers[staffIndex].active = false;
+                    staffMembers[staffIndex].deregistrationDate = new Date().toLocaleDateString();
+                    
+                    localStorage.setItem('staffMembers', JSON.stringify(staffMembers));
+                    loadStaffMembers();
+                    
+                    alert('Staff member deregistered successfully!');
+                }
+            }
+        }
+
+        // Record attendance
+        function recordAttendance() {
+            const staffId = document.getElementById('staff-name').value;
+            const arrivalTime = document.getElementById('arrival-time').value;
+            const date = document.getElementById('attendance-date').value;
+            
+            if (!staffId) {
+                alert('Please select a staff member');
+                return;
+            }
+            
+            if (!arrivalTime) {
+                alert('Please enter arrival time');
+                return;
+            }
+            
+            // Calculate if late or early
+            const arrivalDateTime = new Date(`${date}T${arrivalTime}`);
+            
+            // Expected time from settings
+            const expectedTime = new Date(`${date}T${settings.lateThreshold}:00`);
+            
+            let status, duration;
+            if (arrivalDateTime > expectedTime) {
+                status = 'late';
+                duration = Math.round((arrivalDateTime - expectedTime) / (1000 * 60)); // minutes late
+            } else if (arrivalDateTime < expectedTime) {
+                status = 'early';
+                duration = Math.round((expectedTime - arrivalDateTime) / (1000 * 60)); // minutes early
+            } else {
+                status = 'punctual';
+                duration = 0;
+            }
+            
+            // Format date for display
+            const formattedDate = new Date(date).toLocaleDateString();
+            
+            // Create record
+            const record = {
+                date: formattedDate,
+                staffId,
+                arrivalTime,
+                status,
+                duration,
+                recordedAt: new Date().toLocaleString()
+            };
+            
+            // Check if we're editing an existing record
+            const editIndex = document.getElementById('save-attendance').dataset.editIndex;
+            
+            if (editIndex !== undefined) {
+                // Update existing record
+                attendanceRecords[editIndex] = record;
+                
+                // Clear edit mode
+                document.getElementById('save-attendance').innerHTML = '<i class="fas fa-user-check"></i> Record Attendance';
+                delete document.getElementById('save-attendance').dataset.editIndex;
+            } else {
+                // Add new record
+                attendanceRecords.push(record);
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('attendanceRecords', JSON.stringify(attendanceRecords));
+            
+            // Reload attendance records
+            loadAttendanceRecords();
+            loadDashboard();
+            
+            // Show success message
+            const staff = staffMembers.find(s => s.id === staffId);
+            alert(`Attendance recorded: ${staff ? staff.name : 'Staff member'} was ${status} ${duration > 0 ? `by ${duration} minutes` : ''}`);
+            
+            // Clear form inputs
+            document.getElementById('arrival-time').value = '';
+        }
+
+        // Edit attendance record
+        function editAttendanceRecord(index) {
+            const record = attendanceRecords[index];
+            const staff = staffMembers.find(s => s.id === record.staffId);
+            
+            // Set form values
+            const dateParts = record.date.split('/');
+            const formattedDate = `${dateParts[2]}-${dateParts[0].padStart(2, '0')}-${dateParts[1].padStart(2, '0')}`;
+            document.getElementById('attendance-date').value = formattedDate;
+            document.getElementById('staff-name').value = record.staffId;
+            document.getElementById('arrival-time').value = record.arrivalTime;
+            
+            // Show save button with edit mode
+            const saveBtn = document.getElementById('save-attendance');
+            saveBtn.innerHTML = '<i class="fas fa-save"></i> Update Attendance';
+            saveBtn.dataset.editIndex = index;
+        }
+
+        // Delete attendance record
+        function deleteAttendanceRecord(index) {
+            if (confirm('Are you sure you want to delete this attendance record?')) {
+                attendanceRecords.splice(index, 1);
+                localStorage.setItem('attendanceRecords', JSON.stringify(attendanceRecords));
+                
+                loadAttendanceRecords();
+                alert('Attendance record deleted successfully!');
+            }
+        }
+
+        // Add a deduction field
+        function addDeductionField(deduction = { description: '', amount: '' }) {
+            const deductionId = Date.now();
+            
+            const deductionItem = document.createElement('div');
+            deductionItem.className = 'deduction-item';
+            deductionItem.innerHTML = `
+                <input type="text" class="form-control deduction-description" placeholder="Description" value="${deduction.description || ''}">
+                <input type="number" class="form-control deduction-amount" placeholder="Amount (Ksh)" min="0" value="${deduction.amount || ''}">
+                <button type="button" class="btn btn-danger remove-deduction" data-id="${deductionId}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            deductionItem.id = `deduction-${deductionId}`;
+            
+            document.getElementById('deductions-container').appendChild(deductionItem);
+            
+            // Add event listener to the remove button
+            deductionItem.querySelector('.remove-deduction').addEventListener('click', () => {
+                deductionItem.remove();
+            });
+        }
+
+        // Calculate salary with deductions
+        function calculateSalary() {
+            const staffId = document.getElementById('salary-staff-name').value;
+            const workingDays = parseFloat(document.getElementById('working-days').value) || 0;
+            const month = parseInt(document.getElementById('salary-month').value);
+            const paymentDate = document.getElementById('salary-date').value;
+            
+            // Get all current deductions
+            const deductions = [];
+            const deductionItems = document.getElementById('deductions-container').querySelectorAll('.deduction-item');
+            
+            deductionItems.forEach(item => {
+                const description = item.querySelector('.deduction-description').value.trim();
+                const amount = parseFloat(item.querySelector('.deduction-amount').value) || 0;
+                
+                if (description || amount > 0) {
+                    deductions.push({
+                        description,
+                        amount
+                    });
+                }
+            });
+            
+            if (!staffId) {
+                alert('Please select a staff member');
+                return;
+            }
+            
+            if (!paymentDate) {
+                alert('Please enter the payment date');
+                return;
+            }
+            
+            // Find staff member to get daily rate and working hours
+            const staff = staffMembers.find(s => s.id === staffId);
+            if (!staff) {
+                alert('Staff member not found in records');
+                return;
+            }
+            
+            const dailyRate = staff.dailyRate;
+            const workingHoursPerDay = staff.workingHours || 8;
+            
+            // Calculate basic salary
+            const basicSalary = dailyRate * workingDays;
+            
+            // Get late arrival records for this staff member in the selected month
+            const monthNames = ["January", "February", "March", "April", "May", "June", 
+                              "July", "August", "September", "October", "November", "December"];
+            const monthName = monthNames[month];
+            
+            // Find late records for this staff member in the selected month
+            const lateRecordsForMonth = attendanceRecords.filter(record => {
+                const recordDate = new Date(record.date);
+                return record.staffId === staffId && 
+                       recordDate.getMonth() === month &&
+                       record.status === 'late';
+            });
+            
+            // Calculate total late minutes for the month
+            const totalLateMinutes = lateRecordsForMonth.reduce((sum, record) => sum + record.duration, 0);
+            
+            // Calculate late deduction (5 Ksh per minute late)
+            const totalLateDeduction = totalLateMinutes * settings.deductionPerMinute;
+            
+            // Add late deduction to other deductions if there are any late minutes
+            if (totalLateMinutes > 0) {
+                deductions.push({
+                    description: `Late arrivals (${lateRecordsForMonth.length} times, ${totalLateMinutes} total minutes)`,
+                    amount: totalLateDeduction
+                });
+            }
+            
+            // Calculate total deductions
+            const totalDeductions = deductions.reduce((sum, deduction) => sum + deduction.amount, 0);
+            
+            // Calculate net salary
+            const netSalary = basicSalary - totalDeductions;
+            
+            // Format payment date
+            const formattedPaymentDate = new Date(paymentDate).toLocaleDateString();
+            
+            // Prepare result
+            let resultHTML = `
+                <h3>Salary Calculation for ${staff.name}</h3>
+                <p><strong>Month:</strong> ${monthName}</p>
+                <p><strong>Basic Salary:</strong> Ksh ${basicSalary.toLocaleString()} (${workingDays} days × Ksh ${dailyRate.toLocaleString()}/day)</p>
+                <p><strong>Working Hours/Day:</strong> ${workingHoursPerDay}</p>
+                
+                <h4>Late Arrival Deductions:</h4>
+                ${totalLateMinutes > 0 ? `
+                    <p>• Total Late Minutes: ${totalLateMinutes} minutes</p>
+                    <p>• Deduction Rate: Ksh ${settings.deductionPerMinute} per minute</p>
+                    <p>• Late Deduction: ${totalLateMinutes} mins × Ksh ${settings.deductionPerMinute} = Ksh ${totalLateDeduction.toLocaleString()}</p>
+                ` : '<p>No late arrivals this month</p>'}
+                
+                <h4>Other Deductions:</h4>
+            `;
+            
+            if (deductions.length > (totalLateMinutes > 0 ? 1 : 0)) {
+                deductions.forEach(deduction => {
+                    if (deduction.description !== `Late arrivals (${lateRecordsForMonth.length} times, ${totalLateMinutes} total minutes)`) {
+                        resultHTML += `<p>• ${deduction.description || 'No description'}: Ksh ${deduction.amount.toLocaleString()}</p>`;
+                    }
+                });
+            } else {
+                resultHTML += `<p>No other deductions applied</p>`;
+            }
+            
+            resultHTML += `
+                <p><strong>Total Deductions:</strong> Ksh ${totalDeductions.toLocaleString()}</p>
+                <p><strong>Net Salary:</strong> Ksh ${netSalary.toLocaleString()}</p>
+                <p><strong>Payment Date:</strong> ${formattedPaymentDate}</p>
+                
+                <div style="margin-top: 20px;">
+                    <button id="save-salary" class="btn btn-success">
+                        <i class="fas fa-save"></i> Save Salary Record
+                    </button>
+                </div>
+            `;
+            
+            const salaryResult = document.getElementById('salary-result');
+            salaryResult.innerHTML = resultHTML;
+            salaryResult.style.display = 'block';
+            
+            // Add event listener to save button
+            document.getElementById('save-salary').addEventListener('click', () => {
+                saveSalaryRecord(staff, monthName, basicSalary, totalDeductions, netSalary, paymentDate, deductions);
+            });
+        }
+
+        // Save salary record
+        function saveSalaryRecord(staff, month, basicSalary, totalDeductions, netSalary, paymentDate, deductions) {
+            // Create record
+            const record = {
+                staffId: staff.id,
+                staffName: staff.name,
+                month,
+                basicSalary,
+                totalDeductions,
+                netSalary,
+                paymentDate,
+                calculationDate: new Date().toLocaleDateString(),
+                deductions: deductions,
+                status: new Date(paymentDate) <= new Date() ? 'paid' : 'pending'
+            };
+            
+            // Check if we're editing an existing record
+            const editIndex = document.getElementById('calculate-salary').dataset.editIndex;
+            
+            if (editIndex !== undefined) {
+                // Update existing record
+                salaryRecords[editIndex] = record;
+            } else {
+                // Add new record
+                salaryRecords.push(record);
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('salaryRecords', JSON.stringify(salaryRecords));
+            
+            // Show success message
+            alert('Salary record saved successfully!');
+            
+            // Clear deductions for next calculation
+            document.getElementById('deductions-container').innerHTML = '';
+            addDeductionField();
+            
+            // Hide result section
+            document.getElementById('salary-result').style.display = 'none';
+        }
+
+        // Record a quick sale
+        function recordQuickSale() {
+            const itemId = document.getElementById('quick-item').value;
+            const quantity = parseInt(document.getElementById('quick-qty').value) || 0;
+            const price = parseFloat(document.getElementById('quick-price').value) || 0;
+            const paymentMethod = document.getElementById('quick-payment').value;
+            
+            if (!itemId) {
+                alert('Please select an item');
+                return;
+            }
+            
+            if (quantity <= 0) {
+                alert('Please enter a valid quantity');
+                return;
+            }
+            
+            if (price <= 0) {
+                alert('Please enter a valid price');
+                return;
+            }
+            
+            const item = menuItems.find(i => i.id == itemId);
+            if (!item) {
+                alert('Selected item not found');
+                return;
+            }
+            
+            // Create sale record
+            const now = new Date();
+            const record = {
+                date: now.toLocaleDateString(),
+                time: now.toLocaleTimeString(),
+                itemId: item.id,
+                itemName: item.name,
+                quantity,
+                price,
+                total: quantity * price,
+                paymentMethod,
+                type: 'quick'
+            };
+            
+            businessRecords.push(record);
+            localStorage.setItem('bamburiRecords', JSON.stringify(businessRecords));
+            
+            // Update dashboard
+            loadDashboard();
+            
+            // Show success message
+            alert(`Sale recorded: ${quantity} ${item.name} for Ksh ${record.total.toLocaleString()}`);
+            
+            // Clear form
+            document.getElementById('quick-qty').value = '1';
+            document.getElementById('quick-price').value = '';
+        }
+
+        // Record a full sale
+        function recordSale() {
+            const fishType = document.getElementById('fish-type').value;
+            
+            // Get fish size quantities
+            const fishSizes = [200, 250, 300, 350, 400];
+            const fishQuantities = fishSizes.map(size => {
+                const qty = parseInt(document.getElementById(`size-${size}`).value) || 0;
+                return { size, qty };
+            });
+            
+            // Calculate total pieces sold and revenue
+            let piecesSold = 0;
+            let fishRevenue = 0;
+            
+            fishQuantities.forEach(item => {
+                piecesSold += item.qty;
+                fishRevenue += item.qty * item.size;
+            });
+            
+            // Get other items
+            const otherItems = Array.from(document.getElementById('other-items').selectedOptions)
+                .map(option => {
+                    const item = menuItems.find(i => i.id == option.value);
+                    return {
+                        id: item.id,
+                        name: item.name,
+                        price: item.price,
+                        quantity: 1 // Default quantity for now
+                    };
+                });
+            
+            // Calculate other items revenue
+            let otherRevenue = 0;
+            otherItems.forEach(item => {
+                otherRevenue += item.price * item.quantity;
+            });
+            
+            const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+            const mpesaAmount = paymentMethod === 'mpesa' ? fishRevenue + otherRevenue : parseFloat(document.getElementById('mpesa-sales').value) || 0;
+            const cashAmount = paymentMethod === 'cash' ? fishRevenue + otherRevenue : parseFloat(document.getElementById('cash-sales').value) || 0;
+            const totalSales = fishRevenue + otherRevenue;
+            
+            // Validate required fields
+            if (piecesSold === 0 && otherItems.length === 0) {
+                alert('Please enter at least some sales data (fish or other items)');
+                return;
+            }
+            
+            // Create record
+            const now = new Date();
+            const record = {
+                date: now.toLocaleDateString(),
+                time: now.toLocaleTimeString(),
+                fishType,
+                fishSizes: fishQuantities.filter(item => item.qty > 0),
+                piecesSold,
+                fishRevenue,
+                otherItems,
+                otherRevenue,
+                totalSales,
+                paymentMethod,
+                mpesaAmount,
+                cashAmount,
+                type: 'full'
+            };
+            
+            businessRecords.push(record);
+            localStorage.setItem('bamburiRecords', JSON.stringify(businessRecords));
+            
+            // Update dashboard
+            loadDashboard();
+            
+            // Show success message
+            alert('Sale recorded successfully!');
+            
+            // Clear form inputs
+            fishQuantities.forEach(item => {
+                document.getElementById(`size-${item.size}`).value = '';
+            });
+            document.getElementById('mpesa-sales').value = '';
+            document.getElementById('cash-sales').value = '';
+            document.getElementById('total-sales').value = '';
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Menu toggle for mobile
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+            });
+            
+            // Navigation links
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pageId = link.getAttribute('data-page');
+                    
+                    // Update active nav link
+                    navLinks.forEach(navLink => navLink.classList.remove('active'));
+                    link.classList.add('active');
+                    
+                    // Show selected page
+                    pages.forEach(page => page.classList.remove('active'));
+                    document.getElementById(pageId).classList.add('active');
+                    
+                    // Close sidebar on mobile
+                    if (window.innerWidth <= 992) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+            });
+            
+            // Staff management
+            document.getElementById('register-employee').addEventListener('click', registerStaffMember);
+            document.getElementById('deregister-employee').addEventListener('click', deregisterStaffMember);
+            
+            // Attendance
+            document.getElementById('save-attendance').addEventListener('click', recordAttendance);
+            
+            // Salary calculation
+            document.getElementById('add-deduction').addEventListener('click', () => addDeductionField());
+            document.getElementById('calculate-salary').addEventListener('click', calculateSalary);
+            
+            // Sales
+            document.getElementById('save-quick-sale').addEventListener('click', recordQuickSale);
+            document.getElementById('save-sale').addEventListener('click', recordSale);
+            
+            // Update total sales when amounts change
+            document.getElementById('mpesa-sales').addEventListener('input', updateTotalSales);
+            document.getElementById('cash-sales').addEventListener('input', updateTotalSales);
+            
+            // Enable/disable deregister button based on selection
+            document.getElementById('staff-name').addEventListener('change', function() {
+                document.getElementById('deregister-employee').disabled = !this.value;
+            });
+        }
+
+        // Update total sales display
+        function updateTotalSales() {
+            const mpesaSales = parseFloat(document.getElementById('mpesa-sales').value) || 0;
+            const cashSales = parseFloat(document.getElementById('cash-sales').value) || 0;
+            const total = mpesaSales + cashSales;
+            document.getElementById('total-sales').value = `Ksh ${total.toLocaleString()}`;
+        }
+
+        // Initialize the application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
